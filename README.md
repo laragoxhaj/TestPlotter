@@ -1,16 +1,17 @@
 # About
 
-The LossAccPlotter is a small class to generate plots during the training of machine learning algorithms (specifically neural networks) showing the following values over time/epochs:
-* The result of the _loss_ function, when applied to the _training_ dataset.
-* The result of the _loss_ function, when applied to the _validation_ dataset.
-* The _accuracy_ of the current model, when applied to the _training_ dataset.
-* The _accuracy_ of the current model, when applied to the _validation_ dataset.
+The TestPlotter is a small class to generate plots during the testing of machine learning algorithms (specifically neural networks) showing the following values:
+* _Actual_ data labels, when applied to a _test_ dataset.
+* _Predicted_ data labels from the current model, when applied to a _test_ dataset.
+
+(TestPlotter, and this ReadMe, is adapted from the similar loss and accuracy plotter (for plotting loss and accuracy values during the training of a machine learning model), at [LossAccPlotter](https://github.com/aleju/LossAccPlotter) by alehu)
 
 Some Features:
-* Automatic regression on your values to predict future values over the next N epochs.
+* Automatic regression on your values to predict future values over the next N x-values.
 * Automatic generation of averages to get a better estimate of your true performance (i.e. to get rid of variance).
 * Option to save the plot automatically to a file (at every update).
 * The plot is non-blocking, so your program can train in the background while the plot gets continuously updated.
+* Currently builds 2D plots - i.e., predicted and actual 1D values plotted against 1D x-values.
 
 # Requirements
 
@@ -20,34 +21,30 @@ Some Features:
 
 # Example images
 
-![Example plot with loss and accuracy](images/example_plot.png?raw=true "Example plot with loss and accuracy")
-
-![Example plot, only loss function](images/example_plot_loss.png?raw=true "Example plot, only loss function")
+![Example plot with predicted and actual values](images/example_plot.png?raw=true "Example plot with predicted and actual values")
 
 ![Example plot, different update intervals](images/example_plot_update_intervals.png?raw=true "Example plot, different update intervals")
 
-![Example plot, only training set results](images/example_plot_only_training.png?raw=true "Example plot, only training set results")
+![Example plot, only predicted values](images/example_plot_only_predictio.png?raw=true "Example plot, only prediced values")
 
 # Example code
 
-In order to use the `LossAccPlotter`, simply copy `laplotter.py` into your project's directory, import `LossAccPlotter` from the file and then add some values to the plotted lines, as shown in the following examples.
+In order to use the `TestPlotter`, simply copy `tplotter.py` into your project's directory, import `TestPlotter` from the file and then add some values to the plotted lines, as shown in the following examples.
 
 Example loop over 100 epochs:
 
 ```python
-from laplotter import LossAccPlotter
+from tplotter import TestPlotter
 
-plotter = LossAccPlotter()
+plotter = TestPlotter()
 
-for epoch in range(100):
-    # somehow generate loss and accuracy with your model
-    loss_train, acc_train = your_model.train()
-    loss_val, acc_val = your_model.validate()
-    
+for x_t, y_t in zip(X_test, Y_test):
+    # somehow generate predicted values with your model
+    y_predicted = your_model.predict(x_t)
+
     # plot the last values
-    plotter.add_values(epoch,
-                       loss_train=loss_train, acc_train=acc_train,
-                       loss_val=loss_val, acc_val=acc_val)
+    plotter.add_values(x_t,
+                       y_predicted=y_predicted, y_actual=y_t)
 
 # As the plot is non-blocking, we should call plotter.block() at the end, to
 # change it to the blocking-mode. Otherwise the program would instantly end
@@ -55,70 +52,66 @@ for epoch in range(100):
 plotter.block()
 ```
 
-All available settings for the `LossAccPlotter`:
+All available settings for the `TestPlotter`:
 
 ```python
-from laplotter import LossAccPlotter
+from tplotter import TestPlotter
 
 # What these settings do:
 # - title: A title shown at the top of the plot.
 # - save_to_filepath: File to save the plot to at every update.
 # - show_regressions: Whether to predict future values with regression.
 # - show_averages: Whether to show moving averages for all lines.
-# - show_loss_plot: Whether to show the plot of the loss function (on the left).
-# - show_acc_plot: Whether to show the plot of the accuracy (on the right).
 # - show_plot_window: Whether to show the plot as a window (on e.g. clusters you might want to deactivate that and only save to a file).
-# - x_label: Label of the x-axes (e.g. "Epoch", "Batch", "Example").
-plotter = LossAccPlotter(title="This is an example plot",
+# - x_label: Label of the x-axis.
+# - y_label: Label of the y-axis.
+plotter = TestPlotter(title="This is an example plot",
                          save_to_filepath="/tmp/my_plot.png",
                          show_regressions=True,
                          show_averages=True,
-                         show_loss_plot=True,
-                         show_acc_plot=True,
                          show_plot_window=True,
-                         x_label="Epoch")
+                         x_label="Date",
+                         y_label="Price")
 
 # ...
 ```
 
-You don't have to provide values for all lines at every epoch:
+You don't have to provide values for all lines at every x-value:
 
 ```python
-from laplotter import LossAccPlotter
+from tplotter import TestPlotter
 
-plotter = LossAccPlotter()
-for epoch in range(100):
-    loss_train, acc_train = your_model.train()
+plotter = TestPlotter()
+i=1
+for x_t, y_t in zip(X_test, Y_test):
 
-    # Validate only every 25th epoch
-    # both validation lines will be less smooth than the lines of the training dataset
-    if epoch % 25 == 0:
-        loss_val, acc_val = your_model.validate()
+    # plot predicted label only every 25th test x-value
+    # the prediction line will be smoother than the line of the actual dataset
+    if i % 25 == 0:
+        y_predicted = your_model.predict(x_t)
     else:
-        loss_val, acc_val = None, None
+        y_predicted = None, None
 
-    plotter.add_values(epoch,
-                       loss_train=loss_train, acc_train=acc_train,
-                       loss_val=loss_val, acc_val=acc_val)
+    plotter.add_values(x_t,
+                       y_predicted=y_predicted, y_actual=y_t)
 plotter.block()
 ```
-
 
 When adding many values in a row (e.g. when loading a history from a file), you should add `redraw=False` to the `add_values()` call, otherwise the plotter will spend a lot of time rebuilding the chart many times:
 
 ```python
-from laplotter import LossAccPlotter
+from tplotter import TestPlotter
 import numpy as np
 
-plotter = LossAccPlotter()
+plotter = TestPlotter()
 
 # generate some example values for the loss training line
 example_values = np.linspace(0.8, 0.1, num=100)
 
 # add them all
-for epoch, value in enumerate(example_values):
+for x, value in enumerate(example_values):
     # deactivate redrawing after each update
-    plotter.add_values(epoch, loss_train=value, redraw=False)
+    plotter.add_values(x, y_predicted=value, redraw=False)
 
 # redraw once at the end
 plotter.redraw()
@@ -135,7 +128,7 @@ These plots should all look plausible and "beautiful".
 Run the checks via:
 
 ```python
-python check_laplotter.py
+python check_tplotter.py
 ```
 
 # License

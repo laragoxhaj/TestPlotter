@@ -25,13 +25,13 @@ Some Features:
 
 ![Example plot, different update intervals](images/example_plot_update_intervals.png?raw=true "Example plot, different update intervals")
 
-![Example plot, only predicted values](images/example_plot_only_predictio.png?raw=true "Example plot, only prediced values")
+![Example plot, only predicted values](images/example_plot_only_prediction.png?raw=true "Example plot, only prediced values")
 
 # Example code
 
 In order to use the `TestPlotter`, simply copy `tplotter.py` into your project's directory, import `TestPlotter` from the file and then add some values to the plotted lines, as shown in the following examples.
 
-Example loop over 100 epochs:
+Example loop over 100 test x-values:
 
 ```python
 from tplotter import TestPlotter

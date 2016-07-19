@@ -4,7 +4,7 @@ The TestPlotter is a small class to generate plots during the testing of machine
 * _Actual_ data labels, when applied to a _test_ dataset.
 * _Predicted_ data labels from the current model, when applied to a _test_ dataset.
 
-(TestPlotter, and this ReadMe, is adapted from the similar loss and accuracy plotter (for plotting loss and accuracy values during the training of a machine learning model), at [LossAccPlotter](https://github.com/aleju/LossAccPlotter) by alehu)
+(TestPlotter, and this ReadMe, is adapted from the similar loss and accuracy plotter (for plotting loss and accuracy values during the training of a machine learning model), at [LossAccPlotter](https://github.com/aleju/LossAccPlotter) by aleju)
 
 Some Features:
 * Automatic regression on your values to predict future values over the next N x-values.
